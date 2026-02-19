@@ -29,7 +29,7 @@ A personal finance application designed to help you track spending against speci
 
 1.  **Clone the repository**:
     ```bash
-    git clone [<repository-url>](https://github.com/Udayreddy2608/spender)
+    git clone https://github.com/Udayreddy2608/spender
     cd spender
     ```
 
