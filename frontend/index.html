@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Spender — Mission Budget</title>
+  <meta name="description"
+    content="A goal-driven budgeting dashboard to track and achieve your financial target with weekly spending controls." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">⚡</span>
+        <span class="logo-text">Spender</span>
+        <span class="logo-tag">Mission Mode</span>
+      </div>
+      <div class="header-actions">
+        <a href="/analytics" class="btn btn-ghost" id="btn-analytics">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+          </svg>
+          Analytics
+        </a>
+        <button class="btn btn-ghost" id="btn-setup" onclick="openModal('modal-goal')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14" />
+            <path d="M4.93 4.93a10 10 0 0 0 0 14.14" />
+          </svg>
+          Setup Goal
+        </button>
+        <button class="btn btn-balance" id="btn-balance" onclick="openModal('modal-balance')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="2" y="7" width="20" height="14" rx="2" />
+            <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16" />
+          </svg>
+          Set Balance
+        </button>
+        <button class="btn btn-credit" id="btn-credit" onclick="openModal('modal-credit')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          Credit
+        </button>
+        <button class="btn btn-primary" id="btn-add-expense" onclick="openModal('modal-expense')">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 20V4" />
+            <path d="M5 13l7 7 7-7" />
+          </svg>
+          Log Expense
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- Mission Banner -->
+    <section class="mission-banner" id="mission-banner">
+      <div class="mission-content">
+        <div class="mission-label">ACTIVE MISSION</div>
+        <div class="mission-title" id="mission-title">₹1,25,000 by June 1</div>
+        <div class="mission-status">
+          <span class="status-dot" id="status-dot"></span>
+          <span id="status-text">Loading...</span>
+        </div>
+      </div>
+      <div class="mission-progress-wrap">
+        <div class="mission-progress-bar">
+          <div class="mission-progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+        <div class="mission-progress-labels">
+          <span id="progress-pct">0%</span>
+          <span id="progress-label">of ₹1,25,000</span>
+        </div>
+      </div>
+      <button class="btn-add-saving" id="btn-add-saving" onclick="openModal('modal-saving')" title="Log a Saving">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M12 5v14" />
+          <path d="M5 12h14" />
+        </svg>
+        <span>Add Saving</span>
+      </button>
+    </section>
+
+    <!-- ═══ BALANCE COMMAND CENTER ═══ -->
+    <section class="balance-center" id="balance-center">
+
+      <!-- Balance Hero -->
+      <div class="balance-hero" id="balance-hero">
+        <div class="balance-hero-left">
+          <div class="balance-hero-label">
+            <span class="bh-dot" id="bh-dot"></span>
+            CURRENT BALANCE
+          </div>
+          <div class="balance-hero-amount" id="bh-amount">₹—</div>
+          <div class="balance-hero-time" id="bh-time">Tap "Set Balance" to get started</div>
+          <!-- Live balance breakdown pill -->
+          <div class="balance-delta" id="balance-delta" style="display:none">
+            <span class="delta-credit" id="delta-credit"></span>
+            <span class="delta-sep">·</span>
+            <span class="delta-debit" id="delta-debit"></span>
+            <span class="delta-sep">since last set</span>
+          </div>
+        </div>
+        <div class="balance-hero-right">
+          <div class="health-score-wrap">
+            <svg class="health-ring" viewBox="0 0 80 80">
+              <circle class="hr-bg" cx="40" cy="40" r="32" />
+              <circle class="hr-fill" id="health-ring-fill" cx="40" cy="40" r="32" stroke-dasharray="201"
+                stroke-dashoffset="201" />
+            </svg>
+            <div class="health-score-center">
+              <div class="health-score-num" id="health-score">—</div>
+              <div class="health-score-label">health</div>
+            </div>
+          </div>
+          <div class="health-badge" id="health-badge">—</div>
+        </div>
+      </div>
+
+      <!-- Balance Breakdown Row -->
+      <div class="balance-breakdown">
+        <div class="bb-card bb-safe">
+          <div class="bb-icon">✅</div>
+          <div class="bb-body">
+            <div class="bb-label">Safe to Spend</div>
+            <div class="bb-value" id="bb-safe">₹—</div>
+            <div class="bb-sub">won't hurt your goal</div>
+          </div>
+        </div>
+        <div class="bb-card bb-locked">
+          <div class="bb-icon">🔒</div>
+          <div class="bb-body">
+            <div class="bb-label">Locked for Goal</div>
+            <div class="bb-value" id="bb-locked">₹—</div>
+            <div class="bb-sub">protect this amount</div>
+          </div>
+        </div>
+        <div class="bb-card bb-daily">
+          <div class="bb-icon">📅</div>
+          <div class="bb-body">
+            <div class="bb-label">Daily Budget</div>
+            <div class="bb-value" id="bb-daily">₹—</div>
+            <div class="bb-sub" id="bb-daily-sub">until next salary</div>
+          </div>
+        </div>
+        <div class="bb-card bb-burn">
+          <div class="bb-icon">🔥</div>
+          <div class="bb-body">
+            <div class="bb-label">Weekly Burn Rate</div>
+            <div class="bb-value" id="bb-burn">—%</div>
+            <div class="bb-sub">of weekly cap used</div>
+          </div>
+        </div>
+        <div class="bb-card bb-underspend" id="bb-underspend-card" style="display:none">
+          <div class="bb-icon">🎉</div>
+          <div class="bb-body">
+            <div class="bb-label">Week Saved</div>
+            <div class="bb-value" id="bb-underspend">₹—</div>
+            <div class="bb-sub" id="bb-underspend-sub">under weekly limit</div>
+          </div>
+        </div>
+        <div class="bb-card bb-cc" id="bb-cc-card">
+          <div class="bb-icon">💳</div>
+          <div class="bb-body">
+            <div class="bb-label">CC Outstanding</div>
+            <div class="bb-value" id="bb-cc">₹0</div>
+            <div class="bb-sub" id="bb-cc-sub">no CC spends yet</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overspend Risk Banner -->
+      <div class="overspend-banner" id="overspend-banner" style="display:none">
+        <span class="ob-icon">🚨</span>
+        <span class="ob-text">At your current burn rate, you may run out of money before your next salary!</span>
+      </div>
+
+      <!-- Ledger History (collapsed by default) -->
+      <div class="balance-history-wrap" id="balance-history-wrap" style="display:none">
+        <button class="bh-toggle" id="bh-toggle" onclick="toggleLedger()">
+          <div class="bh-toggle-left">
+            <span class="bh-title">Balance Activity</span>
+            <span class="bh-count" id="bh-count"></span>
+          </div>
+          <svg class="bh-chevron" id="bh-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2.5">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+        <div class="bh-list" id="bh-list" style="display:none"></div>
+      </div>
+
+    </section>
+
+    <!-- Stats Grid -->
+    <section class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">💰</div>
+        <div class="stat-body">
+          <div class="stat-label">Total Saved</div>
+          <div class="stat-value" id="stat-saved">₹—</div>
+          <div class="stat-sub" id="stat-saved-sub">—</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🎯</div>
+        <div class="stat-body">
+          <div class="stat-label">Remaining Target</div>
+          <div class="stat-value" id="stat-remaining">₹—</div>
+          <div class="stat-sub">to reach target</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">📅</div>
+        <div class="stat-body">
+          <div class="stat-label">Days Left</div>
+          <div class="stat-value" id="stat-days">—</div>
+          <div class="stat-sub" id="stat-days-sub">—</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon">🔮</div>
+        <div class="stat-body">
+          <div class="stat-label">Predicted Balance</div>
+          <div class="stat-value" id="stat-predicted">₹—</div>
+          <div class="stat-sub">by deadline</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Budget Row -->
+    <section class="budget-row">
+
+      <!-- Weekly Budget -->
+      <div class="budget-card">
+        <div class="budget-header">
+          <div class="budget-title"><span class="budget-icon">📆</span>Weekly Budget</div>
+          <button class="btn-icon" onclick="openModal('modal-weekly-cap')" title="Edit cap">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+            </svg>
+          </button>
+        </div>
+        <div class="budget-ring-wrap">
+          <svg class="budget-ring" viewBox="0 0 120 120">
+            <circle class="ring-bg" cx="60" cy="60" r="50" />
+            <circle class="ring-fill" id="weekly-ring" cx="60" cy="60" r="50" stroke-dasharray="314"
+              stroke-dashoffset="314" />
+          </svg>
+          <div class="ring-center">
+            <div class="ring-value" id="weekly-remaining">₹—</div>
+            <div class="ring-label">left</div>
+          </div>
+        </div>
+        <div class="budget-meta">
+          <div class="budget-meta-row"><span>Spent</span><span id="weekly-spent">₹—</span></div>
+          <div class="budget-meta-row"><span>Cap</span><span id="weekly-cap">₹—</span></div>
+          <div class="budget-meta-row"><span>Resets</span><span>Monday</span></div>
+        </div>
+        <div class="budget-warning" id="weekly-warning" style="display:none">⚠️ Weekly cap exceeded!</div>
+      </div>
+
+      <!-- Required Savings + Simulator -->
+      <div class="budget-card">
+        <div class="budget-header">
+          <div class="budget-title"><span class="budget-icon">📊</span>Required Savings</div>
+        </div>
+        <div class="required-list">
+          <div class="required-item">
+            <div class="required-period">Monthly</div>
+            <div class="required-amount" id="req-monthly">₹—</div>
+          </div>
+          <div class="required-divider"></div>
+          <div class="required-item">
+            <div class="required-period">Weekly</div>
+            <div class="required-amount" id="req-weekly">₹—</div>
+          </div>
+          <div class="required-divider"></div>
+          <div class="required-item">
+            <div class="required-period">Months Left</div>
+            <div class="required-amount" id="req-months">—</div>
+          </div>
+        </div>
+        <div class="simulate-section">
+          <div class="simulate-title">Expense Simulator</div>
+          <div class="simulate-row">
+            <input type="number" id="sim-amount" class="sim-input" placeholder="₹ Amount" min="1" />
+            <select id="sim-category" class="sim-select">
+              <option value="food">🍔 Food</option>
+              <option value="travel">✈️ Travel</option>
+              <option value="clothes">👗 Clothes</option>
+              <option value="skincare">✨ Skincare</option>
+              <option value="studies">📚 Studies</option>
+              <option value="health">💊 Health</option>
+              <option value="subscriptions">📱 Subscriptions</option>
+              <option value="rent">🏠 Rent</option>
+              <option value="emi">💳 EMI</option>
+              <option value="misc">📦 Misc</option>
+            </select>
+            <button class="btn btn-sim" onclick="runSimulation()">Simulate</button>
+          </div>
+          <div class="sim-result" id="sim-result" style="display:none"></div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Expense Log -->
+    <section class="expense-section">
+      <div class="expense-header">
+        <h2 class="section-title">Expense Log</h2>
+        <div class="expense-filters" id="expense-filters">
+          <button class="filter-btn active" onclick="filterExpenses('all', this)">All</button>
+          <button class="filter-btn filter-btn-week" onclick="filterExpenses('week', this)">📅 This Week</button>
+          <button class="filter-btn" onclick="filterExpenses('food', this)">🍔 Food</button>
+          <button class="filter-btn" onclick="filterExpenses('travel', this)">✈️ Travel</button>
+          <button class="filter-btn" onclick="filterExpenses('clothes', this)">👗 Clothes</button>
+          <button class="filter-btn" onclick="filterExpenses('skincare', this)">✨ Skincare</button>
+          <button class="filter-btn" onclick="filterExpenses('studies', this)">📚 Studies</button>
+          <button class="filter-btn" onclick="filterExpenses('health', this)">💊 Health</button>
+          <button class="filter-btn" onclick="filterExpenses('misc', this)">📦 Misc</button>
+        </div>
+      </div>
+      <div class="expense-list" id="expense-list">
+        <div class="expense-empty">No expenses logged yet.</div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ─── MODALS ──────────────────────────────────────────────────────────── -->
+
+  <!-- Goal Modal -->
+  <div class="modal-overlay" id="modal-goal" onclick="closeModalOutside(event,'modal-goal')">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Set Your Mission Goal</h3>
+        <button class="modal-close" onclick="closeModal('modal-goal')">✕</button>
+      </div>
+      <form id="form-goal" onsubmit="submitGoal(event)">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Target Amount (₹)</label>
+            <input type="number" id="g-target" required placeholder="125000" />
+          </div>
+          <div class="form-group">
+            <label>Deadline</label>
+            <input type="date" id="g-deadline" required />
+          </div>
+          <div class="form-group">
+            <label>Monthly Income (₹)</label>
+            <input type="number" id="g-income" required placeholder="50000" />
+          </div>
+          <div class="form-group">
+            <label>Initial Savings (₹) <span class="form-hint">already saved</span></label>
+            <input type="number" id="g-initial-savings" placeholder="0" min="0" />
+          </div>
+          <div class="form-group">
+            <label>EMI (₹)</label>
+            <input type="number" id="g-emi" placeholder="0" />
+          </div>
+          <div class="form-group">
+            <label>Rent (₹)</label>
+            <input type="number" id="g-rent" placeholder="0" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('modal-goal')">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Goal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Set Balance Modal -->
+  <div class="modal-overlay" id="modal-balance" onclick="closeModalOutside(event,'modal-balance')">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h3>📊 Set Current Balance</h3>
+        <button class="modal-close" onclick="closeModal('modal-balance')">✕</button>
+      </div>
+      <div class="balance-modal-hint">
+        Enter the <strong>exact amount in your bank account right now</strong>. All future expenses will be
+        automatically deducted from this.
+      </div>
+      <div class="form-group" style="padding: 0 24px;">
+        <label>Current Bank Balance (₹)</label>
+        <input type="number" id="bal-amount" placeholder="e.g. 45000" min="0" class="balance-input-big" />
+      </div>
+      <div class="form-group" style="padding: 8px 24px 0;">
+        <label>Label (optional)</label>
+        <input type="text" id="bal-note" placeholder="e.g. After salary, After rent paid" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-balance')">Cancel</button>
+        <button type="button" class="btn btn-balance" onclick="submitSetBalance()">Set Balance</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Credit Modal -->
+  <div class="modal-overlay" id="modal-credit" onclick="closeModalOutside(event,'modal-credit')">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h3>💚 Add Credit</h3>
+        <button class="modal-close" onclick="closeModal('modal-credit')">✕</button>
+      </div>
+      <div class="balance-modal-hint">
+        Add money that came in — salary, transfer, cashback, gift, etc. This will <strong>increase your current
+          balance</strong>.
+      </div>
+      <div class="form-group" style="padding: 0 24px;">
+        <label>Amount Received (₹)</label>
+        <input type="number" id="credit-amount" placeholder="e.g. 5000" min="1"
+          class="balance-input-big credit-input" />
+      </div>
+      <div class="form-group" style="padding: 8px 24px 0;">
+        <label>Source / Note</label>
+        <input type="text" id="credit-note" placeholder="e.g. Salary, Freelance payment, Cashback" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-credit')">Cancel</button>
+        <button type="button" class="btn btn-credit-submit" onclick="submitCredit()">Add Credit ₹</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Expense Modal -->
+  <div class="modal-overlay" id="modal-expense" onclick="closeModalOutside(event,'modal-expense')">
+    <div class="modal">
+      <div class="modal-header">
+        <h3>Log Expense</h3>
+        <button class="modal-close" onclick="closeModal('modal-expense')">✕</button>
+      </div>
+      <form id="form-expense" onsubmit="submitExpense(event)">
+        <!-- Payment Mode Toggle -->
+        <div class="payment-mode-row">
+          <div class="pm-label">Payment Mode</div>
+          <div class="pm-toggle" id="pm-toggle">
+            <button type="button" class="pm-btn pm-upi active" id="pm-upi" onclick="setPaymentMode('upi')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="5" width="20" height="14" rx="2" />
+                <line x1="2" y1="10" x2="22" y2="10" />
+              </svg>
+              UPI
+            </button>
+            <button type="button" class="pm-btn pm-card" id="pm-card" onclick="setPaymentMode('card')">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="2" y="5" width="20" height="14" rx="2" />
+                <circle cx="9" cy="15" r="2" />
+                <path d="M15 15h2" />
+              </svg>
+              Credit Card
+            </button>
+          </div>
+          <div class="pm-hint" id="pm-hint">💸 Will deduct from your balance</div>
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Amount (₹)</label>
+            <input type="number" id="e-amount" required placeholder="500" min="1" />
+          </div>
+          <div class="form-group">
+            <label>Category</label>
+            <select id="e-category" required>
+              <option value="food">🍔 Food</option>
+              <option value="travel">✈️ Travel</option>
+              <option value="clothes">👗 Clothes</option>
+              <option value="skincare">✨ Skincare</option>
+              <option value="studies">📚 Studies</option>
+              <option value="health">💊 Health</option>
+              <option value="subscriptions">📱 Subscriptions</option>
+              <option value="rent">🏠 Rent</option>
+              <option value="emi">💳 EMI</option>
+              <option value="misc">📦 Misc</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" id="e-date" required />
+          </div>
+          <div class="form-group">
+            <label>Mood (optional)</label>
+            <select id="e-mood">
+              <option value="">— none —</option>
+              <option value="calm">😌 Calm</option>
+              <option value="happy">😄 Happy</option>
+              <option value="bored">😑 Bored</option>
+              <option value="stressed">😰 Stressed</option>
+            </select>
+          </div>
+          <div class="form-group form-group-full">
+            <label>Note (optional)</label>
+            <input type="text" id="e-note" placeholder="What was this for?" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-ghost" onclick="closeModal('modal-expense')">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="btn-log-expense">Log It</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Weekly Cap Modal -->
+  <div class="modal-overlay" id="modal-weekly-cap" onclick="closeModalOutside(event,'modal-weekly-cap')">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h3>Edit Weekly Cap</h3>
+        <button class="modal-close" onclick="closeModal('modal-weekly-cap')">✕</button>
+      </div>
+      <div class="form-group" style="padding: 0 24px;">
+        <label>New Weekly Cap (₹)</label>
+        <input type="number" id="new-cap" placeholder="4000" min="100" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-weekly-cap')">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="updateWeeklyCap()">Update</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Saving Modal -->
+  <div class="modal-overlay" id="modal-saving" onclick="closeModalOutside(event,'modal-saving')">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h3>💰 Log a Saving</h3>
+        <button class="modal-close" onclick="closeModal('modal-saving')">✕</button>
+      </div>
+      <div class="balance-modal-hint">
+        Record money you have actively set aside toward your goal. This tracks your <strong>saving progress</strong>
+        separately from your balance.
+      </div>
+      <!-- Saving Progress -->
+      <div class="saving-progress-wrap" id="saving-progress-wrap">
+        <div class="saving-progress-labels">
+          <span id="sp-saved">₹0 saved</span>
+          <span id="sp-target">Goal: ₹—</span>
+        </div>
+        <div class="saving-progress-bar">
+          <div class="saving-progress-fill" id="sp-fill" style="width:0%"></div>
+        </div>
+        <div class="saving-progress-pct" id="sp-pct">0% of goal reached</div>
+      </div>
+      <div class="form-group" style="padding: 0 24px;">
+        <label>Amount Saved (₹)</label>
+        <input type="number" id="saving-amount" placeholder="e.g. 5000" min="1"
+          class="balance-input-big saving-input" />
+      </div>
+      <div class="form-group" style="padding: 8px 24px 0;">
+        <label>Note (optional)</label>
+        <input type="text" id="saving-note" placeholder="e.g. Weekly savings, Transfer to FD" />
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeModal('modal-saving')">Cancel</button>
+        <button type="button" class="btn btn-saving-submit" onclick="submitSaving()">+ Add Saving</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+  <script src="app.js"></script>
+</body>
+
+</html>

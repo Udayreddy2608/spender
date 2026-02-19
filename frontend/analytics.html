@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spender — Analytics</title>
+    <meta name="description"
+        content="Visual analytics dashboard for your Spender budget — weekly trends, category breakdown, and daily spending patterns." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
+    <style>
+        /* ── Analytics-specific styles ─────────────────────────────────────── */
+        .analytics-hero {
+            background: linear-gradient(135deg, #0f1117 0%, #13111f 100%);
+            border: 1px solid rgba(108, 99, 255, 0.2);
+            border-radius: var(--radius);
+            padding: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .analytics-hero::before {
+            content: '';
+            position: absolute;
+            top: -80px;
+            right: -80px;
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(108, 99, 255, 0.1) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .analytics-hero-title {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #fff 0%, var(--accent2) 100%);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 6px;
+        }
+
+        .analytics-hero-sub {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .analytics-hero-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 8px 16px;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-xs);
+            transition: all 0.2s;
+            background: var(--surface2);
+        }
+
+        .analytics-hero-back:hover {
+            color: var(--text);
+            border-color: var(--border-hover);
+        }
+
+        /* ── Summary Tiles ──────────────────────────────────────────────────── */
+        .analytics-tiles {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+        }
+
+        .a-tile {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 22px 20px;
+            transition: all 0.25s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .a-tile::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--tile-accent, var(--accent));
+            border-radius: 2px 2px 0 0;
+        }
+
+        .a-tile:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+
+        .a-tile-icon {
+            font-size: 26px;
+            margin-bottom: 12px;
+        }
+
+        .a-tile-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+        }
+
+        .a-tile-value {
+            font-size: 26px;
+            font-weight: 800;
+            font-family: var(--mono);
+            letter-spacing: -0.5px;
+            color: var(--text);
+            margin-bottom: 4px;
+        }
+
+        .a-tile-sub {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .a-tile.green {
+            --tile-accent: var(--green);
+        }
+
+        .a-tile.green .a-tile-value {
+            color: var(--green);
+        }
+
+        .a-tile.red {
+            --tile-accent: var(--red);
+        }
+
+        .a-tile.red .a-tile-value {
+            color: var(--red);
+        }
+
+        .a-tile.yellow {
+            --tile-accent: var(--yellow);
+        }
+
+        .a-tile.yellow .a-tile-value {
+            color: var(--yellow);
+        }
+
+        .a-tile.purple {
+            --tile-accent: var(--accent2);
+        }
+
+        .a-tile.purple .a-tile-value {
+            color: var(--accent2);
+        }
+
+        /* ── Chart Cards ────────────────────────────────────────────────────── */
+        .chart-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .chart-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 24px;
+            transition: border-color 0.2s;
+        }
+
+        .chart-card:hover {
+            border-color: var(--border-hover);
+        }
+
+        .chart-card.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chart-title-icon {
+            font-size: 16px;
+        }
+
+        .chart-badge {
+            font-size: 10px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 20px;
+            background: rgba(108, 99, 255, 0.15);
+            color: var(--accent2);
+            border: 1px solid rgba(108, 99, 255, 0.25);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .chart-wrap {
+            position: relative;
+            height: 260px;
+        }
+
+        .chart-wrap.tall {
+            height: 320px;
+        }
+
+        /* ── Category Legend ────────────────────────────────────────────────── */
+        .cat-legend {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-top: 16px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .cat-legend-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding: 6px 10px;
+            border-radius: var(--radius-xs);
+            background: var(--surface2);
+            font-size: 12px;
+        }
+
+        .cat-legend-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cat-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .cat-name {
+            font-weight: 500;
+            color: var(--text-dim);
+        }
+
+        .cat-count {
+            font-size: 10px;
+            color: var(--text-muted);
+        }
+
+        .cat-amount {
+            font-weight: 700;
+            font-family: var(--mono);
+            color: var(--text);
+        }
+
+        /* ── Weekly Bars Legend ─────────────────────────────────────────────── */
+        .weekly-legend {
+            display: flex;
+            gap: 16px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .wl-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .wl-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+        }
+
+        /* ── Empty State ────────────────────────────────────────────────────── */
+        .chart-empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 200px;
+            gap: 10px;
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        .chart-empty-icon {
+            font-size: 36px;
+            opacity: 0.4;
+        }
+
+        /* ── Loading ────────────────────────────────────────────────────────── */
+        .analytics-loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            flex-direction: column;
+            gap: 16px;
+            color: var(--text-muted);
+        }
+
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid rgba(108, 99, 255, 0.2);
+            border-top-color: var(--accent);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* ── Responsive ─────────────────────────────────────────────────────── */
+        @media (max-width: 900px) {
+            .analytics-tiles {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .chart-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chart-card.full-width {
+                grid-column: 1;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .analytics-tiles {
+                grid-template-columns: 1fr;
+            }
+
+            .analytics-hero {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-grid"></div>
+    <div class="bg-glow"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="header-inner">
+            <div class="logo">
+                <span class="logo-icon">⚡</span>
+                <span class="logo-text">Spender</span>
+                <span class="logo-tag">Analytics</span>
+            </div>
+            <div class="header-actions">
+                <a href="/" class="btn btn-ghost">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+                        <polyline points="9 22 9 12 15 12 15 22" />
+                    </svg>
+                    Dashboard
+                </a>
+                <button class="btn btn-primary" onclick="loadAnalytics()">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="23 4 23 10 17 10" />
+                        <polyline points="1 20 1 14 7 14" />
+                        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
+                    </svg>
+                    Refresh
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="main" id="analytics-main">
+        <div class="analytics-loading" id="loading-state">
+            <div class="spinner"></div>
+            <span>Loading analytics…</span>
+        </div>
+    </main>
+
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="analytics.js"></script>
+</body>
+
+</html>
